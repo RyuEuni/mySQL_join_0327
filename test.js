@@ -1,4 +1,5 @@
 const http = require("http");
+const mysql = require("mysql");
 // import fs from "fs";
 
 function body(data){
@@ -16,7 +17,7 @@ function body(data){
   </html>`
 }
 const dbInfo = {
-  host: 'localhost',
+  host: '127.0.0.1',
   user: 'root',
   password: '0000',
   database: 'test'
@@ -31,14 +32,18 @@ const server = http.createServer(function(request, response){
     let tb;
     let conn = mysql.createConnection(dbInfo);
     conn.connect();
-    conn.query(`select tb1.*, tb2.gen from tb1 left join tb2 on tb1.id = tb2.id`,
-    function(err, tb1){
+    conn.query(`create table merge_table as select tb1.*, tb2.gen from tb1 left join tb2 on tb1.id = tb2.id`,
+    function(err, rows){
       if(err) throw err;
-      else tb = tamplate.list(tb1); console.log(tb);
+      else{
+        console.log(JSON.parse(rows));
+        //response.send(rows);
+      }
     });
     conn.end();
 
-    response.write(body(hello));
+    //console.log(response.values)
+    response.write(body('hello'));
     response.end();
   }
 
